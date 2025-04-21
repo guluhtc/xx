@@ -1,37 +1,27 @@
 import { NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { subscribe } from '@/lib/instagram/webhook'
 
 export async function POST(request: Request) {
   try {
-    const { access_token, verify_token } = await request.json()
+    // Get current user session
+    const cookieStore = cookies()
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const { data: { session } } = await supabase.auth.getSession()
 
-    if (!access_token || !verify_token) {
-      return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
+    if (!session) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    // Subscribe to Instagram webhooks
-    const response = await fetch(
-      'https://graph.facebook.com/v12.0/instagram/subscriptions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          object: 'instagram',
-          callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/instagram`,
-          verify_token: verify_token,
-          fields: ['mentions', 'story_insights', 'media_insights'],
-          access_token: access_token,
-        }),
-      }
-    )
+    const { fields } = await request.json()
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Webhook subscription failed: ${error}`)
+    if (!Array.isArray(fields) || fields.length === 0) {
+      return NextResponse.json({ error: 'Invalid fields parameter' }, { status: 400 })
     }
 
-    const result = await response.json()
+    // Subscribe to webhooks with user's access token
+    const result = await subscribe(session.user.id, fields)
     return NextResponse.json(result)
   } catch (error: any) {
     console.error('Subscription error:', error)
