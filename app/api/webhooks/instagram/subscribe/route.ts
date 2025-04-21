@@ -21,10 +21,12 @@ export async function POST(request: Request) {
     }
 
     // Subscribe to webhooks with user's access token
-    const result = await subscribe(session.user.id, fields)
+    const result = await subscribe(fields)
     return NextResponse.json(result)
   } catch (error: any) {
-    console.error('Subscription error:', error)
+    // Combine error message into a single string
+    console.error(`Subscription error: ${error?.message || error}`)
+    
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

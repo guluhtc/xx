@@ -22,12 +22,13 @@ export async function subscribe(fields: string[]) {
     )
 
     if (!response.ok) {
-      throw new Error('Failed to subscribe to webhook')
+      const error = await response.text()
+      throw new Error(`Failed to subscribe to webhook: ${error}`)
     }
 
     return await response.json()
-  } catch (error) {
-    console.error('Error subscribing to webhook:', error)
+  } catch (error: any) {
+    console.error(`Error subscribing to webhook: ${error?.message || error}`)
     throw new Error('Failed to subscribe to webhook')
   }
 }
@@ -39,12 +40,13 @@ export async function listSubscriptions() {
     )
 
     if (!response.ok) {
-      throw new Error('Failed to list subscriptions')
+      const error = await response.text()
+      throw new Error(`Failed to list subscriptions: ${error}`)
     }
 
     return await response.json()
-  } catch (error) {
-    console.error('Error listing subscriptions:', error)
+  } catch (error: any) {
+    console.error(`Error listing subscriptions: ${error?.message || error}`)
     throw new Error('Failed to list subscriptions')
   }
 }
@@ -65,12 +67,13 @@ export async function deleteSubscription(subscriptionId: string) {
     )
 
     if (!response.ok) {
-      throw new Error('Failed to delete subscription')
+      const error = await response.text()
+      throw new Error(`Failed to delete subscription: ${error}`)
     }
 
     return await response.json()
-  } catch (error) {
-    console.error('Error deleting subscription:', error)
+  } catch (error: any) {
+    console.error(`Error deleting subscription: ${error?.message || error}`)
     throw new Error('Failed to delete subscription')
   }
 }
