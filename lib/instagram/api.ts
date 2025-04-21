@@ -3,25 +3,12 @@ import { supabase } from '@/lib/supabase'
 
 const GRAPH_API_URL = `${instagramConfig.graphApiUrl}/${instagramConfig.apiVersion}`
 const GRAPH_API_PUBLISH_URL = `${instagramConfig.graphApiPublishUrl}/${instagramConfig.apiVersion}`
+const ACCESS_TOKEN = instagramConfig.accessToken
 
-async function getUserAccessToken(userId: string): Promise<string> {
-  const { data: session, error } = await supabase
-    .from('instagram_auth_sessions')
-    .select('access_token')
-    .eq('user_id', userId)
-    .single()
-
-  if (error) throw error
-  if (!session?.access_token) throw new Error('No valid Instagram session found')
-
-  return session.access_token
-}
-
-export async function getProfile(userId: string) {
+export async function getProfile() {
   try {
-    const accessToken = await getUserAccessToken(userId)
     const response = await fetch(
-      `${GRAPH_API_URL}/me?fields=id,username,account_type,media_count&access_token=${accessToken}`
+      `${GRAPH_API_URL}/me?fields=id,username,account_type,media_count&access_token=${ACCESS_TOKEN}`
     )
 
     if (!response.ok) {
@@ -35,11 +22,10 @@ export async function getProfile(userId: string) {
   }
 }
 
-export async function getMedia(userId: string, limit = 25) {
+export async function getMedia(limit = 25) {
   try {
-    const accessToken = await getUserAccessToken(userId)
     const response = await fetch(
-      `${GRAPH_API_URL}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=${limit}&access_token=${accessToken}`
+      `${GRAPH_API_URL}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=${limit}&access_token=${ACCESS_TOKEN}`
     )
 
     if (!response.ok) {
@@ -74,10 +60,8 @@ export async function schedulePost(post: InstagramPost, userId: string): Promise
   }
 }
 
-export async function publishPost(userId: string, mediaUrl: string, caption: string): Promise<void> {
+export async function publishPost(mediaUrl: string, caption: string): Promise<void> {
   try {
-    const accessToken = await getUserAccessToken(userId)
-
     // Create container
     const containerResponse = await fetch(`${GRAPH_API_PUBLISH_URL}/me/media`, {
       method: 'POST',
@@ -85,7 +69,7 @@ export async function publishPost(userId: string, mediaUrl: string, caption: str
       body: JSON.stringify({
         image_url: mediaUrl,
         caption,
-        access_token: accessToken,
+        access_token: ACCESS_TOKEN,
       }),
     })
 
@@ -101,7 +85,7 @@ export async function publishPost(userId: string, mediaUrl: string, caption: str
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         creation_id: containerId,
-        access_token: accessToken,
+        access_token: ACCESS_TOKEN,
       }),
     })
 
@@ -114,13 +98,12 @@ export async function publishPost(userId: string, mediaUrl: string, caption: str
   }
 }
 
-export async function getInsights(userId: string, metrics: string[], since?: string, until?: string) {
+export async function getInsights(metrics: string[], since?: string, until?: string) {
   try {
-    const accessToken = await getUserAccessToken(userId)
     const params = new URLSearchParams({
       metric: metrics.join(','),
       period: 'day',
-      access_token: accessToken
+      access_token: ACCESS_TOKEN
     })
 
     if (since) params.append('since', since)
@@ -139,11 +122,10 @@ export async function getInsights(userId: string, metrics: string[], since?: str
   }
 }
 
-export async function getMediaInsights(userId: string, mediaId: string) {
+export async function getMediaInsights(mediaId: string) {
   try {
-    const accessToken = await getUserAccessToken(userId)
     const response = await fetch(
-      `${GRAPH_API_URL}/${mediaId}/insights?metric=engagement,impressions,reach&access_token=${accessToken}`
+      `${GRAPH_API_URL}/${mediaId}/insights?metric=engagement,impressions,reach&access_token=${ACCESS_TOKEN}`
     )
 
     if (!response.ok) {
@@ -157,11 +139,10 @@ export async function getMediaInsights(userId: string, mediaId: string) {
   }
 }
 
-export async function getHashtagInfo(userId: string, hashtag: string) {
+export async function getHashtagInfo(hashtag: string) {
   try {
-    const accessToken = await getUserAccessToken(userId)
     const response = await fetch(
-      `${GRAPH_API_URL}/ig_hashtag_search?q=${hashtag}&access_token=${accessToken}`
+      `${GRAPH_API_URL}/ig_hashtag_search?q=${hashtag}&access_token=${ACCESS_TOKEN}`
     )
 
     if (!response.ok) {
