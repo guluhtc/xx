@@ -35,6 +35,8 @@ function LoginForm() {
         errorMessage = 'Please sign in to continue'
       } else if (description) {
         errorMessage = decodeURIComponent(description).replace(/\+/g, ' ')
+      } else if (error === 'Invalid API key') {
+        errorMessage = 'Authentication service is temporarily unavailable'
       }
 
       toast.error(errorMessage)
@@ -54,8 +56,7 @@ function LoginForm() {
       if (error) throw error
 
       // Get the return URL from the query parameter or default to dashboard
-      const params = new URLSearchParams(window.location.search)
-      const returnTo = params.get('returnTo') || '/dashboard'
+      const returnTo = searchParams?.get('returnTo') || '/dashboard'
 
       router.push(returnTo)
       router.refresh() // Force a refresh to update auth state
@@ -102,7 +103,7 @@ function LoginForm() {
             Welcome Back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Please sign in to access the admin dashboard
+            Please sign in to access your dashboard
           </p>
         </div>
 
@@ -120,7 +121,7 @@ function LoginForm() {
               </>
             ) : (
               <>
-                <Instagram className="mr-2 h-4 w-4" />
+                <Instagram className="absolute left-4 h-4 w-4" />
                 Continue with Instagram
               </>
             )}

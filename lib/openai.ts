@@ -1,21 +1,34 @@
+import { supabase } from './supabase'
+
 export async function generateCaption(prompt: string, options: any = {}) {
   try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'caption', prompt, options })
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to generate caption: ${error}`);
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      throw new Error('Not authenticated')
     }
 
-    const data = await response.json();
-    return data.content;
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-caption`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ prompt, options })
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.error || 'Failed to generate caption')
+    }
+
+    const data = await response.json()
+    return data.content
   } catch (error) {
-    console.error('Error generating caption:', error);
-    throw error;
+    console.error('Error generating caption:', error)
+    throw error
   }
 }
 
