@@ -7,28 +7,29 @@ export async function generateCaption(prompt: string, options: any = {}) {
       throw new Error('Not authenticated')
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-caption`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ prompt, options })
-      }
-    )
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        type: 'caption', 
+        prompt,
+        options: {
+          ...options,
+          language: options.language || 'en'
+        }
+      })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to generate caption')
+      const error = await response.text();
+      throw new Error(`Failed to generate caption: ${error}`);
     }
 
-    const data = await response.json()
-    return data.content
+    const data = await response.json();
+    return data.content;
   } catch (error) {
-    console.error('Error generating caption:', error)
-    throw error
+    console.error('Error generating caption:', error);
+    throw error;
   }
 }
 
