@@ -13,18 +13,18 @@ export async function generateCaption(prompt: string, options: any = {}) {
           language: options.language || 'en'
         }
       })
-    })
+    });
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to generate caption')
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate caption');
     }
 
-    const data = await response.json()
-    return data.content
+    const data = await response.json();
+    return data.content;
   } catch (error) {
-    console.error('Error generating caption:', error)
-    throw error
+    console.error('Error generating caption:', error);
+    throw error;
   }
 }
 
