@@ -9,7 +9,7 @@ const corsHeaders = {
 }
 
 const openai = new OpenAI({
-  apiKey: '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'
+  apiKey: Deno.env.get('OPENAI_API_KEY')
 })
 
 serve(async (req) => {
