@@ -70,7 +70,7 @@ export function CaptionForm({ onGenerate, isGenerating }: CaptionFormProps) {
             onValueChange={(value) => setOptions(prev => ({ ...prev, industry: value }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select your industry&apos;s niche" />
+              <SelectValue placeholder="Select your industry's niche" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="fashion">Fashion & Beauty</SelectItem>
@@ -154,7 +154,7 @@ export function CaptionForm({ onGenerate, isGenerating }: CaptionFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">What&apos;s your post about?</label>
+        <label className="text-sm font-medium">What's your post about?</label>
         <Textarea
           placeholder="Describe your post or what you want to say..."
           value={prompt}
