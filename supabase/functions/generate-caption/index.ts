@@ -1,5 +1,6 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/+esm"
-import OpenAI from "https://cdn.jsdelivr.net/npm/openai@4.28.4/+esm"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "npm:@supabase/supabase-js@2.39.7"
+import OpenAI from "npm:openai@4.28.4"
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,7 @@ const openai = new OpenAI({
   apiKey: Deno.env.get("OPENAI_API_KEY")
 })
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders })
   }
